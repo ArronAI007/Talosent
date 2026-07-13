@@ -1,6 +1,17 @@
 # Web App
 
-Placeholder for a future web entrypoint.
+Repo-local launcher for the Talosent browser UI.
 
-This directory stays separate from `src/talosent/` so UI code does not leak into core runtime modules.
+Run it from the repository root with:
 
+```bash
+python -m apps.web --host 127.0.0.1 --port 8000
+```
+
+You can also use the installed script:
+
+```bash
+talosent-web --open-browser
+```
+
+The launcher stays separate from `src/talosent/` so browser-facing code remains optional and the core runtime stays clean.
