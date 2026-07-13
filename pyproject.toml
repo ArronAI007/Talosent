@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "talosent"
+version = "0.1.0"
+description = "A modular, provider-agnostic agent runtime with clear boundaries."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Talosent Contributors" }]
+dependencies = []
+
+[project.scripts]
+talosent = "talosent.cli.main:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["talosent*"]
+

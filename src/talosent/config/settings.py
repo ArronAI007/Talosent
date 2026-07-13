@@ -1,0 +1,53 @@
+"""Environment-backed settings for Talosent."""
+
+from __future__ import annotations
+
+import os
+from collections.abc import Mapping
+from dataclasses import asdict, dataclass
+from typing import Any
+
+
+def _parse_bool(value: str | bool | None) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+@dataclass(slots=True)
+class Settings:
+    app_name: str = "Talosent"
+    environment: str = "development"
+    log_level: str = "INFO"
+    default_provider: str = "local"
+    default_model: str = "stub"
+    memory_backend: str = "in_memory"
+    storage_backend: str = "filesystem"
+    api_host: str = "127.0.0.1"
+    api_port: int = 8000
+    web_enabled: bool = False
+    tui_enabled: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+def load_settings(environ: Mapping[str, str] | None = None) -> Settings:
+    env = os.environ if environ is None else environ
+
+    return Settings(
+        app_name=env.get("TALOSENT_APP_NAME", "Talosent"),
+        environment=env.get("TALOSENT_ENV", "development"),
+        log_level=env.get("TALOSENT_LOG_LEVEL", "INFO").upper(),
+        default_provider=env.get("TALOSENT_PROVIDER", "local"),
+        default_model=env.get("TALOSENT_MODEL", "stub"),
+        memory_backend=env.get("TALOSENT_MEMORY_BACKEND", "in_memory"),
+        storage_backend=env.get("TALOSENT_STORAGE_BACKEND", "filesystem"),
+        api_host=env.get("TALOSENT_API_HOST", "127.0.0.1"),
+        api_port=int(env.get("TALOSENT_API_PORT", "8000")),
+        web_enabled=_parse_bool(env.get("TALOSENT_WEB_ENABLED")),
+        tui_enabled=_parse_bool(env.get("TALOSENT_TUI_ENABLED")),
+    )
+
