@@ -14,3 +14,17 @@ class ToolSpec:
     output_schema: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
 
+    def to_openai_tool(self) -> dict[str, Any]:
+        parameters = self.input_schema or {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": False,
+        }
+        return {
+            "type": "function",
+            "function": {
+                "name": self.name,
+                "description": self.summary,
+                "parameters": parameters,
+            },
+        }

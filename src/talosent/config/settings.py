@@ -23,6 +23,8 @@ class Settings:
     log_level: str = "INFO"
     default_provider: str = "local"
     default_model: str = "stub"
+    openai_api_key: str | None = None
+    openai_base_url: str = "https://api.openai.com/v1"
     memory_backend: str = "in_memory"
     storage_backend: str = "filesystem"
     api_host: str = "127.0.0.1"
@@ -43,6 +45,8 @@ def load_settings(environ: Mapping[str, str] | None = None) -> Settings:
         log_level=env.get("TALOSENT_LOG_LEVEL", "INFO").upper(),
         default_provider=env.get("TALOSENT_PROVIDER", "local"),
         default_model=env.get("TALOSENT_MODEL", "stub"),
+        openai_api_key=env.get("TALOSENT_OPENAI_API_KEY") or None,
+        openai_base_url=env.get("TALOSENT_OPENAI_BASE_URL", "https://api.openai.com/v1"),
         memory_backend=env.get("TALOSENT_MEMORY_BACKEND", "in_memory"),
         storage_backend=env.get("TALOSENT_STORAGE_BACKEND", "filesystem"),
         api_host=env.get("TALOSENT_API_HOST", "127.0.0.1"),
@@ -50,4 +54,3 @@ def load_settings(environ: Mapping[str, str] | None = None) -> Settings:
         web_enabled=_parse_bool(env.get("TALOSENT_WEB_ENABLED")),
         tui_enabled=_parse_bool(env.get("TALOSENT_TUI_ENABLED")),
     )
-

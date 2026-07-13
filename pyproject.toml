@@ -14,6 +14,8 @@ dependencies = []
 
 [project.scripts]
 talosent = "talosent.cli.main:main"
+talosent-tui = "talosent.cli.tui:main"
+talosent-web = "talosent.cli.web:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
@@ -21,4 +23,3 @@ package-dir = { "" = "src" }
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["talosent*"]
-

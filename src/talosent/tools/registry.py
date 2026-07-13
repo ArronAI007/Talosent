@@ -37,9 +37,11 @@ class ToolRegistry:
     def items(self) -> tuple[ToolRegistration, ...]:
         return tuple(self._registrations.values())
 
+    def specs(self) -> tuple[ToolSpec, ...]:
+        return tuple(registration.spec for registration in self._registrations.values())
+
     def names(self) -> tuple[str, ...]:
         return tuple(self._registrations)
 
     def __contains__(self, name: object) -> bool:
         return name in self._registrations
-

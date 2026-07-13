@@ -7,10 +7,19 @@ from typing import Any
 
 
 @dataclass(slots=True)
+class ToolCall:
+    id: str
+    name: str
+    arguments: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
 class AgentMessage:
     role: str
     content: str
     name: str | None = None
+    tool_call_id: str | None = None
+    tool_calls: tuple[ToolCall, ...] = ()
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
@@ -36,16 +45,35 @@ class AgentContext:
         content: str,
         *,
         name: str | None = None,
+        tool_call_id: str | None = None,
+        tool_calls: tuple[ToolCall, ...] | list[ToolCall] = (),
         **metadata: Any,
     ) -> AgentMessage:
         message = AgentMessage(
             role=role,
             content=content,
             name=name,
+            tool_call_id=tool_call_id,
+            tool_calls=tuple(tool_calls),
             metadata=dict(metadata),
         )
         self.messages.append(message)
         return message
+
+    def add_tool_message(
+        self,
+        tool_call_id: str,
+        name: str,
+        content: str,
+        **metadata: Any,
+    ) -> AgentMessage:
+        return self.add_message(
+            "tool",
+            content,
+            name=name,
+            tool_call_id=tool_call_id,
+            **metadata,
+        )
 
     def add_artifact(
         self,
@@ -64,6 +92,12 @@ class AgentContext:
         self.artifacts.append(artifact)
         return artifact
 
+    def last_message(self, role: str | None = None) -> AgentMessage | None:
+        for message in reversed(self.messages):
+            if role is None or message.role == role:
+                return message
+        return None
+
 
 @dataclass(slots=True)
 class WorkflowResult:
@@ -77,4 +111,3 @@ class WorkflowResult:
         context.artifacts.extend(self.artifacts)
         context.state.update(self.state)
         context.metadata.update(self.metadata)
-

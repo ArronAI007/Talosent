@@ -18,6 +18,8 @@ class SettingsTests(unittest.TestCase):
                 "TALOSENT_LOG_LEVEL": "debug",
                 "TALOSENT_PROVIDER": "openai",
                 "TALOSENT_MODEL": "gpt-5",
+                "TALOSENT_OPENAI_API_KEY": "secret-key",
+                "TALOSENT_OPENAI_BASE_URL": "https://example.com/v1",
                 "TALOSENT_MEMORY_BACKEND": "sqlite",
                 "TALOSENT_STORAGE_BACKEND": "filesystem",
                 "TALOSENT_API_HOST": "0.0.0.0",
@@ -32,6 +34,8 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.log_level, "DEBUG")
         self.assertEqual(settings.default_provider, "openai")
         self.assertEqual(settings.default_model, "gpt-5")
+        self.assertEqual(settings.openai_api_key, "secret-key")
+        self.assertEqual(settings.openai_base_url, "https://example.com/v1")
         self.assertEqual(settings.memory_backend, "sqlite")
         self.assertEqual(settings.storage_backend, "filesystem")
         self.assertEqual(settings.api_host, "0.0.0.0")
