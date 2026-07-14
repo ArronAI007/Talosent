@@ -10,7 +10,6 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Lock
 from typing import Any
 from urllib.parse import urlparse
-from uuid import uuid4
 
 from talosent.agent.model import AgentContext, AgentMessage, Artifact, ToolCall
 from talosent.agent.workflows import ChatWorkflow
@@ -53,7 +52,7 @@ class TalosentWebApplication:
             if conversation_id and conversation_id in self.sessions:
                 return self.sessions[conversation_id]
 
-            session = AgentContext(conversation_id=conversation_id or uuid4().hex)
+            session = self.workflow.load_session(conversation_id)
             self.sessions[session.conversation_id] = session
             return session
 

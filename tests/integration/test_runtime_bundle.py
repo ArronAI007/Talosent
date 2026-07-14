@@ -21,6 +21,7 @@ class RuntimeBundleTests(unittest.TestCase):
         self.assertEqual(runtime.provider_name, "local")
         self.assertIn("current_time", runtime.tool_names)
         self.assertEqual(runtime.summary()["memory_entries"], 0)
+        self.assertIs(runtime.workflow.memory_store, runtime.memory_store)
 
         runtime.skills.register_many([SkillSpec(name="research", summary="Collect facts")])
         runtime.plugins.register_many(
@@ -43,4 +44,3 @@ class RuntimeBundleTests(unittest.TestCase):
         self.assertIn("research", summary["skills"])
         self.assertIn("filesystem", summary["plugins"])
         self.assertIn("echo", summary["gateways"])
-

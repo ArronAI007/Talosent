@@ -118,6 +118,10 @@ def build_runtime(
     plugins: PluginRegistry | None = None,
     gateways: GatewayRegistry | None = None,
     max_turns: int = 4,
+    compression_max_messages: int = 24,
+    compression_keep_messages: int = 12,
+    compression_summary_items: int = 8,
+    compression_summary_chars: int = 2000,
 ) -> TalosentRuntime:
     runtime_settings = settings or load_settings()
     runtime_provider = provider or build_provider(runtime_settings)
@@ -144,6 +148,11 @@ def build_runtime(
         tools=runtime_tools,
         system_prompt=DEFAULT_SYSTEM_PROMPT,
         max_turns=max_turns,
+        memory_store=runtime_memory,
+        compression_max_messages=compression_max_messages,
+        compression_keep_messages=compression_keep_messages,
+        compression_summary_items=compression_summary_items,
+        compression_summary_chars=compression_summary_chars,
     )
     return TalosentRuntime(
         settings=runtime_settings,
@@ -164,12 +173,22 @@ def build_chat_workflow(
     provider: ChatProvider | None = None,
     tools: ToolRegistry | None = None,
     max_turns: int = 4,
+    memory_store: MemoryStore | None = None,
+    compression_max_messages: int = 24,
+    compression_keep_messages: int = 12,
+    compression_summary_items: int = 8,
+    compression_summary_chars: int = 2000,
 ) -> ChatWorkflow:
     runtime = build_runtime(
         settings,
         provider=provider,
         tools=tools,
+        memory_store=memory_store,
         max_turns=max_turns,
+        compression_max_messages=compression_max_messages,
+        compression_keep_messages=compression_keep_messages,
+        compression_summary_items=compression_summary_items,
+        compression_summary_chars=compression_summary_chars,
     )
     return runtime.workflow
 

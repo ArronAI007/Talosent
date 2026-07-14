@@ -47,12 +47,22 @@ class WebE2ETests(unittest.TestCase):
         self.assertTrue(any(message["role"] == "tool" for message in first_reply["messages"]))
 
         conversation_id = first_reply["conversation_id"]
+        with self.server.web_app.lock:
+            self.server.web_app.sessions.clear()
+
         second_reply = self._post_json(
             "/api/chat",
             {"conversation_id": conversation_id, "message": "hello again"},
         )
         self.assertEqual(second_reply["conversation_id"], conversation_id)
         self.assertEqual(second_reply["reply"], "You said: hello again")
+        self.assertTrue(any(message["role"] == "tool" for message in second_reply["messages"]))
+        self.assertTrue(
+            any(
+                message["role"] == "assistant" and message["content"].startswith("The current time in UTC is")
+                for message in second_reply["messages"]
+            )
+        )
 
     def _wait_until_ready(self) -> None:
         host, port = self.server.server_address
