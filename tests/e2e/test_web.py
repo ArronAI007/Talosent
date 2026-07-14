@@ -47,8 +47,25 @@ class WebE2ETests(unittest.TestCase):
         self.assertTrue(any(message["role"] == "tool" for message in first_reply["messages"]))
 
         conversation_id = first_reply["conversation_id"]
+        session = self._get_json(f"/api/session?conversation_id={conversation_id}")
+        self.assertEqual(session["conversation_id"], conversation_id)
+        self.assertTrue(any(message["role"] == "assistant" for message in session["messages"]))
+        self.assertTrue(any(message["role"] == "tool" for message in session["messages"]))
+
         with self.server.web_app.lock:
             self.server.web_app.sessions.clear()
+
+        restored = self._get_json(f"/api/session?conversation_id={conversation_id}")
+        self.assertEqual(restored["conversation_id"], conversation_id)
+        self.assertTrue(any(message["role"] == "assistant" for message in restored["messages"]))
+        self.assertTrue(any(message["role"] == "tool" for message in restored["messages"]))
+
+        cleared = self._delete_json(f"/api/session?conversation_id={conversation_id}")
+        self.assertTrue(cleared["ok"])
+
+        reset = self._get_json(f"/api/session?conversation_id={conversation_id}")
+        self.assertEqual(reset["conversation_id"], conversation_id)
+        self.assertEqual(reset["messages"], [])
 
         second_reply = self._post_json(
             "/api/chat",
@@ -56,10 +73,10 @@ class WebE2ETests(unittest.TestCase):
         )
         self.assertEqual(second_reply["conversation_id"], conversation_id)
         self.assertEqual(second_reply["reply"], "You said: hello again")
-        self.assertTrue(any(message["role"] == "tool" for message in second_reply["messages"]))
+        self.assertFalse(any(message["role"] == "tool" for message in second_reply["messages"]))
         self.assertTrue(
             any(
-                message["role"] == "assistant" and message["content"].startswith("The current time in UTC is")
+                message["role"] == "assistant" and message["content"] == "You said: hello again"
                 for message in second_reply["messages"]
             )
         )
@@ -90,5 +107,10 @@ class WebE2ETests(unittest.TestCase):
             headers={"Content-Type": "application/json"},
             method="POST",
         )
+        with urlopen(request) as response:
+            return json.loads(response.read().decode("utf-8"))
+
+    def _delete_json(self, path: str) -> dict[str, object]:
+        request = Request(f"{self.base_url}{path}", method="DELETE")
         with urlopen(request) as response:
             return json.loads(response.read().decode("utf-8"))

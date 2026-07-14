@@ -9,7 +9,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Lock
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from talosent.agent.model import AgentContext, AgentMessage, Artifact, ToolCall
 from talosent.agent.workflows import ChatWorkflow
@@ -46,6 +46,24 @@ class TalosentWebApplication:
             "tools": list(self.tool_names),
             "active_sessions": len(self.sessions),
         }
+
+    def session_payload(self, conversation_id: str | None = None) -> dict[str, Any]:
+        session = self.get_session(conversation_id)
+        return {
+            "ok": True,
+            "conversation_id": session.conversation_id,
+            "reply": session.last_message("assistant").content if session.last_message("assistant") else "",
+            "state": dict(session.state),
+            "messages": [_serialize_message(item) for item in session.messages],
+            "artifacts": [_serialize_artifact(item) for item in session.artifacts],
+            "provider": self.provider_name,
+            "tools": list(self.tool_names),
+        }
+
+    def clear_session(self, conversation_id: str) -> None:
+        with self.lock:
+            self.sessions.pop(conversation_id, None)
+        self.workflow.clear_session(conversation_id)
 
     def get_session(self, conversation_id: str | None = None) -> AgentContext:
         with self.lock:
@@ -104,6 +122,15 @@ class TalosentWebHandler(BaseHTTPRequestHandler):
             self._send_json(app.health_payload())
             return
 
+        if route == "/api/session":
+            conversation_id = self._query_param("conversation_id")
+            self._send_json(app.session_payload(conversation_id))
+            return
+
+        if route == "/favicon.ico":
+            self._send_empty(status=HTTPStatus.NO_CONTENT)
+            return
+
         self._send_json({"ok": False, "error": "Not found"}, status=HTTPStatus.NOT_FOUND)
 
     def do_POST(self) -> None:  # noqa: N802
@@ -136,6 +163,24 @@ class TalosentWebHandler(BaseHTTPRequestHandler):
 
         self._send_json(response)
 
+    def do_DELETE(self) -> None:  # noqa: N802
+        route = urlparse(self.path).path
+
+        if route != "/api/session":
+            self._send_json({"ok": False, "error": "Not found"}, status=HTTPStatus.NOT_FOUND)
+            return
+
+        conversation_id = self._query_param("conversation_id")
+        if not conversation_id:
+            self._send_json(
+                {"ok": False, "error": "conversation_id is required"},
+                status=HTTPStatus.BAD_REQUEST,
+            )
+            return
+
+        self._app().clear_session(conversation_id)
+        self._send_json({"ok": True, "conversation_id": conversation_id})
+
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A003
         LOGGER.debug("%s - %s", self.address_string(), format % args)
 
@@ -164,6 +209,14 @@ class TalosentWebHandler(BaseHTTPRequestHandler):
             raise ValueError("request body must be a JSON object")
         return payload
 
+    def _query_param(self, name: str) -> str | None:
+        params = parse_qs(urlparse(self.path).query)
+        value = params.get(name, [])
+        if not value:
+            return None
+        text = str(value[0]).strip()
+        return text or None
+
     def _send_json(self, payload: dict[str, Any], status: HTTPStatus = HTTPStatus.OK) -> None:
         data = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status)
@@ -172,6 +225,12 @@ class TalosentWebHandler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(data)
+
+    def _send_empty(self, status: HTTPStatus = HTTPStatus.NO_CONTENT) -> None:
+        self.send_response(status)
+        self.send_header("Content-Length", "0")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
 
     def _send_html(self, html: str, status: HTTPStatus = HTTPStatus.OK) -> None:
         data = html.encode("utf-8")

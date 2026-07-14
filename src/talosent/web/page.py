@@ -453,8 +453,10 @@ const App={
       localStorage.setItem(STORAGE.conversationId,this.state.conversationId);
       document.getElementById('conversation-id-display').textContent='ID: '+this.state.conversationId.slice(0,8);
       const sk=document.getElementById(skeletonId);if(sk)sk.remove();
-      this.renderTranscript(data.messages||[]);
-      if(data.state&&data.state.tool_calls){this.state.toolCalls=data.state.tool_calls;this.renderToolLog();}
+      const messages=data.messages||[];
+      this.renderTranscript(messages);
+      this.state.toolCalls=this._extractToolCalls(messages);
+      this.renderToolLog();
       this.state.tokenUsage={
         prompt:(data.state&&data.state.token_usage&&data.state.token_usage.prompt)||Math.floor(Math.random()*500+100),
         completion:(data.state&&data.state.token_usage&&data.state.token_usage.completion)||Math.floor(Math.random()*300+50),total:0
@@ -468,6 +470,21 @@ const App={
       this.appendMessage('error','Error: '+err.message);
       this.addTimelineItem('error',err.message,'failed');
     }finally{this.setLoading(false);}
+  },
+
+  _sessionUrl(conversationId){
+    const id=conversationId||this.state.conversationId;
+    return `/api/session?conversation_id=${encodeURIComponent(id)}`;
+  },
+
+  _extractToolCalls(messages){
+    const toolCalls=[];
+    for(const message of messages||[]){
+      if(message.role==='assistant'&&Array.isArray(message.tool_calls)){
+        toolCalls.push(...message.tool_calls);
+      }
+    }
+    return toolCalls;
   },
 
   appendMessage(role,content,meta){
@@ -561,6 +578,8 @@ const App={
 
   resetContext(){
     if(!confirm('Reset conversation context? This cannot be undone.'))return;
+    const previousId=this.state.conversationId;
+    fetch(this._sessionUrl(previousId),{method:'DELETE'}).catch(()=>{});
     localStorage.removeItem(STORAGE.conversationId);
     this.state.conversationId=crypto.randomUUID();
     localStorage.setItem(STORAGE.conversationId,this.state.conversationId);
@@ -575,6 +594,7 @@ const App={
     document.getElementById('token-completion-bar').style.width='0%';
     document.getElementById('conversation-id-display').textContent='ID: '+this.state.conversationId.slice(0,8);
     this.setLoading(false);
+    this.loadConversation();
   },
 
   exportConfig(){
@@ -595,7 +615,29 @@ const App={
     }
   },
 
-  loadConversation(){this.renderTranscript([]);}
+  async loadConversation(){
+    try{
+      const res=await fetch(this._sessionUrl());
+      const data=await res.json();
+      if(!res.ok)throw new Error(data.error||'Failed to load conversation');
+      if(data.conversation_id){
+        this.state.conversationId=data.conversation_id;
+        localStorage.setItem(STORAGE.conversationId,this.state.conversationId);
+      }
+      const messages=data.messages||[];
+      this.renderTranscript(messages);
+      this.renderWorkflowNodes(messages);
+      this.state.toolCalls=this._extractToolCalls(messages);
+      this.renderToolLog();
+      if(messages.length>0){
+        this.addTimelineItem('session','Conversation restored','completed');
+      }
+      document.getElementById('conversation-id-display').textContent='ID: '+this.state.conversationId.slice(0,8);
+    }catch(err){
+      console.error(err);
+      this.renderTranscript([]);
+    }
+  }
 };
 
 window.App=App;
