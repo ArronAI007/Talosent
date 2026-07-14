@@ -31,6 +31,15 @@ class ProviderRegistry:
         self._registrations[profile.name] = registration
         return registration
 
+    def register_many(
+        self,
+        registrations: Iterable[tuple[ProviderProfile, ProviderFactory | None]],
+    ) -> tuple[ProviderRegistration, ...]:
+        stored: list[ProviderRegistration] = []
+        for profile, factory in registrations:
+            stored.append(self.register(profile, factory))
+        return tuple(stored)
+
     def get(self, name: str) -> ProviderRegistration:
         return self._registrations[name]
 
@@ -46,9 +55,17 @@ class ProviderRegistry:
     def items(self) -> tuple[ProviderRegistration, ...]:
         return tuple(self._registrations.values())
 
+    def profiles(self) -> tuple[ProviderProfile, ...]:
+        return tuple(registration.profile for registration in self._registrations.values())
+
     def names(self) -> tuple[str, ...]:
         return tuple(self._registrations)
 
+    def as_dict(self) -> dict[str, dict[str, Any]]:
+        return {name: registration.profile.to_dict() for name, registration in self._registrations.items()}
+
+    def describe(self, name: str) -> str:
+        return self.resolve(name).label
+
     def __contains__(self, name: object) -> bool:
         return name in self._registrations
-

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -27,8 +27,17 @@ class ToolRegistry:
         self._registrations[spec.name] = registration
         return registration
 
+    def register_many(self, registrations: Iterable[tuple[ToolSpec, ToolHandler]]) -> tuple[ToolRegistration, ...]:
+        stored: list[ToolRegistration] = []
+        for spec, handler in registrations:
+            stored.append(self.register(spec, handler))
+        return tuple(stored)
+
     def get(self, name: str) -> ToolRegistration:
         return self._registrations[name]
+
+    def get_spec(self, name: str) -> ToolSpec:
+        return self.get(name).spec
 
     def invoke(self, name: str, arguments: Mapping[str, Any] | None = None) -> Any:
         registration = self.get(name)
@@ -42,6 +51,12 @@ class ToolRegistry:
 
     def names(self) -> tuple[str, ...]:
         return tuple(self._registrations)
+
+    def as_dict(self) -> dict[str, dict[str, Any]]:
+        return {name: registration.spec.to_dict() for name, registration in self._registrations.items()}
+
+    def describe(self, name: str) -> str:
+        return self.get_spec(name).describe()
 
     def __contains__(self, name: object) -> bool:
         return name in self._registrations

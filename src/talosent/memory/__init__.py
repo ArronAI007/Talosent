@@ -1,8 +1,19 @@
-"""Memory abstractions and in-memory implementations."""
+"""Memory abstractions and store implementations."""
 
 from __future__ import annotations
 
-from talosent.memory.store import InMemoryMemoryStore, MemoryEntry, MemoryStore
+from talosent.memory.store import (
+    InMemoryMemoryStore,
+    MemoryEntry,
+    MemoryStore,
+    PersistentMemoryStore,
+    build_memory_store,
+)
 
-__all__ = ["InMemoryMemoryStore", "MemoryEntry", "MemoryStore"]
-
+__all__ = [
+    "InMemoryMemoryStore",
+    "MemoryEntry",
+    "MemoryStore",
+    "PersistentMemoryStore",
+    "build_memory_store",
+]

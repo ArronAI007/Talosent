@@ -20,15 +20,27 @@ class RegistryIntegrationTests(unittest.TestCase):
     def test_registries_and_backends_round_trip(self) -> None:
         provider_registry = ProviderRegistry()
         provider_registry.register(ProviderProfile(name="local", model="stub"))
+        provider_registry.register_many(
+            [(ProviderProfile(name="remote", family="openai-compatible", model="gpt-5"), None)]
+        )
         self.assertEqual(provider_registry.resolve("local").model, "stub")
+        self.assertEqual(provider_registry.describe("local"), "local:stub")
+        self.assertIn("local", provider_registry.as_dict())
 
         tool_registry = ToolRegistry()
         tool_registry.register(ToolSpec(name="echo"), lambda arguments: arguments["text"])
+        tool_registry.register_many(
+            [(ToolSpec(name="reverse"), lambda arguments: arguments["text"][::-1])]
+        )
         self.assertEqual(tool_registry.invoke("echo", {"text": "hello"}), "hello")
+        self.assertEqual(tool_registry.get_spec("echo").name, "echo")
+        self.assertEqual(tool_registry.describe("echo"), "echo")
+        self.assertEqual(tool_registry.invoke("reverse", {"text": "abc"}), "cba")
 
         skill_registry = SkillRegistry()
         skill_registry.register(SkillSpec(name="research", summary="Collect facts"))
         self.assertEqual(skill_registry.get("research").spec.summary, "Collect facts")
+        self.assertEqual(skill_registry.describe("research"), "research: Collect facts")
 
         plugin_registry = PluginRegistry()
         plugin_registry.register(PluginSpec(name="filesystem", entrypoint="talosent.plugins.filesystem"))
@@ -36,6 +48,7 @@ class RegistryIntegrationTests(unittest.TestCase):
             plugin_registry.get("filesystem").spec.entrypoint,
             "talosent.plugins.filesystem",
         )
+        self.assertEqual(plugin_registry.describe("filesystem"), "filesystem 0.1.0")
 
         memory_store = InMemoryMemoryStore()
         memory_store.put(MemoryEntry(key="topic", value="agents"))

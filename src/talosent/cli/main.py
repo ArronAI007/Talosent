@@ -9,7 +9,7 @@ from collections.abc import Sequence
 from talosent import __version__
 from talosent.config import load_settings
 from talosent.observability import configure_logging
-from talosent.runtime import build_provider, build_tool_registry
+from talosent.runtime import build_runtime
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -33,15 +33,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     configure_logging(settings.log_level)
 
     if args.command == "doctor":
-        provider = build_provider(settings)
-        tools = build_tool_registry()
+        runtime = build_runtime(settings)
         print(f"Talosent {__version__}")
-        print(f"environment: {settings.environment}")
-        print(f"selected provider: {provider.name}")
-        print(f"model: {settings.default_model}")
-        print(f"memory backend: {settings.memory_backend}")
-        print(f"storage backend: {settings.storage_backend}")
-        print(f"tools: {', '.join(tools.names()) or '(none)'}")
+        print(f"environment: {runtime.settings.environment}")
+        print(f"selected provider: {runtime.provider_name}")
+        print(f"model: {runtime.settings.default_model}")
+        print(
+            f"memory backend: {runtime.settings.memory_backend} ({runtime.memory_store.__class__.__name__})"
+        )
+        print(
+            f"storage backend: {runtime.settings.storage_backend} ({runtime.storage_backend.__class__.__name__})"
+        )
+        print(f"tools: {', '.join(runtime.tool_names) or '(none)'}")
+        print(f"skills: {', '.join(runtime.skills.names()) or '(none)'}")
+        print(f"plugins: {', '.join(runtime.plugins.names()) or '(none)'}")
+        print(f"gateways: {', '.join(runtime.gateways.names()) or '(none)'}")
         return 0
 
     if args.command == "config":
