@@ -22,6 +22,10 @@ class SettingsTests(unittest.TestCase):
                 "TALOSENT_OPENAI_BASE_URL": "https://example.com/v1",
                 "TALOSENT_MEMORY_BACKEND": "sqlite",
                 "TALOSENT_STORAGE_BACKEND": "filesystem",
+                "TALOSENT_RECENT_TURNS": "6",
+                "TALOSENT_MEMORY_FACT_LIMIT": "10",
+                "TALOSENT_SUMMARY_TURN_PREVIEW_LIMIT": "12",
+                "TALOSENT_SUMMARY_CHAR_LIMIT": "4096",
                 "TALOSENT_API_HOST": "0.0.0.0",
                 "TALOSENT_API_PORT": "9000",
                 "TALOSENT_WEB_ENABLED": "true",
@@ -38,6 +42,10 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.openai_base_url, "https://example.com/v1")
         self.assertEqual(settings.memory_backend, "sqlite")
         self.assertEqual(settings.storage_backend, "filesystem")
+        self.assertEqual(settings.recent_turns, 6)
+        self.assertEqual(settings.memory_fact_limit, 10)
+        self.assertEqual(settings.summary_turn_preview_limit, 12)
+        self.assertEqual(settings.summary_char_limit, 4096)
         self.assertEqual(settings.api_host, "0.0.0.0")
         self.assertEqual(settings.api_port, 9000)
         self.assertTrue(settings.web_enabled)
@@ -49,3 +57,7 @@ class SettingsTests(unittest.TestCase):
 
         self.assertEqual(data["app_name"], "Talosent")
         self.assertEqual(data["api_port"], 8000)
+        self.assertEqual(data["recent_turns"], 4)
+        self.assertEqual(data["memory_fact_limit"], 8)
+        self.assertEqual(data["summary_turn_preview_limit"], 8)
+        self.assertEqual(data["summary_char_limit"], 2000)

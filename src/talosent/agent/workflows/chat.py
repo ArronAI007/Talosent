@@ -44,10 +44,6 @@ class ChatWorkflow:
     memory_fact_limit: int = 8
     summary_turn_preview_limit: int = 8
     summary_char_limit: int = 2000
-    compression_max_messages: int = 24
-    compression_keep_messages: int = 12
-    compression_summary_items: int = 8
-    compression_summary_chars: int = 2000
 
     def run(self, context: AgentContext) -> WorkflowResult:
         result = WorkflowResult()

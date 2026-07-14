@@ -77,6 +77,10 @@ Talosent reads its settings from environment variables. The defaults are chosen 
 | `TALOSENT_OPENAI_BASE_URL` | Base URL for the OpenAI-compatible provider | `https://api.openai.com/v1` |
 | `TALOSENT_MEMORY_BACKEND` | Memory backend label | `in_memory` |
 | `TALOSENT_STORAGE_BACKEND` | Storage backend label | `filesystem` |
+| `TALOSENT_RECENT_TURNS` | Recent user/assistant turns kept verbatim in the prompt | `4` |
+| `TALOSENT_MEMORY_FACT_LIMIT` | Maximum number of extracted key memory facts | `8` |
+| `TALOSENT_SUMMARY_TURN_PREVIEW_LIMIT` | Number of dropped turns sampled into the running summary | `8` |
+| `TALOSENT_SUMMARY_CHAR_LIMIT` | Maximum characters kept in the summary | `2000` |
 | `TALOSENT_API_HOST` | Host used by the web server | `127.0.0.1` |
 | `TALOSENT_API_PORT` | Port used by the web server | `8000` |
 
@@ -87,6 +91,16 @@ export TALOSENT_PROVIDER=openai_compatible
 export TALOSENT_OPENAI_API_KEY=...
 export TALOSENT_MODEL=...
 ```
+
+### Conversation Memory
+
+Talosent keeps a compact prompt by combining three layers:
+
+- recent turns stay verbatim so the model can continue the conversation naturally
+- older turns roll into a running summary
+- stable facts are extracted into key memory items for long-lived context
+
+If a conversation feels too compressed, increase `TALOSENT_RECENT_TURNS` or `TALOSENT_SUMMARY_CHAR_LIMIT`. If you want the prompt to stay tighter, lower those values.
 
 ## Commands
 
@@ -147,4 +161,3 @@ The current built-in tool set is intentionally small. If you want to extend the 
 - `src/talosent/tools/` for new tools
 - `src/talosent/agent/workflows/` for new workflows
 - `src/talosent/web/` for browser UI changes
-

@@ -118,16 +118,24 @@ def build_runtime(
     plugins: PluginRegistry | None = None,
     gateways: GatewayRegistry | None = None,
     max_turns: int = 4,
-    recent_turns: int = 4,
-    memory_fact_limit: int = 8,
-    summary_turn_preview_limit: int = 8,
-    summary_char_limit: int = 2000,
-    compression_max_messages: int = 24,
-    compression_keep_messages: int = 12,
-    compression_summary_items: int = 8,
-    compression_summary_chars: int = 2000,
+    recent_turns: int | None = None,
+    memory_fact_limit: int | None = None,
+    summary_turn_preview_limit: int | None = None,
+    summary_char_limit: int | None = None,
 ) -> TalosentRuntime:
     runtime_settings = settings or load_settings()
+    resolved_recent_turns = runtime_settings.recent_turns if recent_turns is None else recent_turns
+    resolved_memory_fact_limit = (
+        runtime_settings.memory_fact_limit if memory_fact_limit is None else memory_fact_limit
+    )
+    resolved_summary_turn_preview_limit = (
+        runtime_settings.summary_turn_preview_limit
+        if summary_turn_preview_limit is None
+        else summary_turn_preview_limit
+    )
+    resolved_summary_char_limit = (
+        runtime_settings.summary_char_limit if summary_char_limit is None else summary_char_limit
+    )
     runtime_provider = provider or build_provider(runtime_settings)
     runtime_tools = tools or build_tool_registry()
     runtime_storage = storage_backend or build_storage_backend(runtime_settings)
@@ -153,14 +161,10 @@ def build_runtime(
         system_prompt=DEFAULT_SYSTEM_PROMPT,
         max_turns=max_turns,
         memory_store=runtime_memory,
-        recent_turns=recent_turns,
-        memory_fact_limit=memory_fact_limit,
-        summary_turn_preview_limit=summary_turn_preview_limit,
-        summary_char_limit=summary_char_limit,
-        compression_max_messages=compression_max_messages,
-        compression_keep_messages=compression_keep_messages,
-        compression_summary_items=compression_summary_items,
-        compression_summary_chars=compression_summary_chars,
+        recent_turns=resolved_recent_turns,
+        memory_fact_limit=resolved_memory_fact_limit,
+        summary_turn_preview_limit=resolved_summary_turn_preview_limit,
+        summary_char_limit=resolved_summary_char_limit,
     )
     return TalosentRuntime(
         settings=runtime_settings,
@@ -182,14 +186,10 @@ def build_chat_workflow(
     tools: ToolRegistry | None = None,
     max_turns: int = 4,
     memory_store: MemoryStore | None = None,
-    recent_turns: int = 4,
-    memory_fact_limit: int = 8,
-    summary_turn_preview_limit: int = 8,
-    summary_char_limit: int = 2000,
-    compression_max_messages: int = 24,
-    compression_keep_messages: int = 12,
-    compression_summary_items: int = 8,
-    compression_summary_chars: int = 2000,
+    recent_turns: int | None = None,
+    memory_fact_limit: int | None = None,
+    summary_turn_preview_limit: int | None = None,
+    summary_char_limit: int | None = None,
 ) -> ChatWorkflow:
     runtime = build_runtime(
         settings,
@@ -201,10 +201,6 @@ def build_chat_workflow(
         memory_fact_limit=memory_fact_limit,
         summary_turn_preview_limit=summary_turn_preview_limit,
         summary_char_limit=summary_char_limit,
-        compression_max_messages=compression_max_messages,
-        compression_keep_messages=compression_keep_messages,
-        compression_summary_items=compression_summary_items,
-        compression_summary_chars=compression_summary_chars,
     )
     return runtime.workflow
 

@@ -16,6 +16,17 @@ def _parse_bool(value: str | bool | None) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _parse_int(value: str | int | None, default: int) -> int:
+    if value is None:
+        return default
+    if isinstance(value, int):
+        return value
+    text = value.strip()
+    if not text:
+        return default
+    return int(text)
+
+
 @dataclass(slots=True)
 class Settings:
     app_name: str = "Talosent"
@@ -27,6 +38,10 @@ class Settings:
     openai_base_url: str = "https://api.openai.com/v1"
     memory_backend: str = "in_memory"
     storage_backend: str = "filesystem"
+    recent_turns: int = 4
+    memory_fact_limit: int = 8
+    summary_turn_preview_limit: int = 8
+    summary_char_limit: int = 2000
     api_host: str = "127.0.0.1"
     api_port: int = 8000
     web_enabled: bool = False
@@ -49,8 +64,15 @@ def load_settings(environ: Mapping[str, str] | None = None) -> Settings:
         openai_base_url=env.get("TALOSENT_OPENAI_BASE_URL", "https://api.openai.com/v1"),
         memory_backend=env.get("TALOSENT_MEMORY_BACKEND", "in_memory"),
         storage_backend=env.get("TALOSENT_STORAGE_BACKEND", "filesystem"),
+        recent_turns=_parse_int(env.get("TALOSENT_RECENT_TURNS"), 4),
+        memory_fact_limit=_parse_int(env.get("TALOSENT_MEMORY_FACT_LIMIT"), 8),
+        summary_turn_preview_limit=_parse_int(
+            env.get("TALOSENT_SUMMARY_TURN_PREVIEW_LIMIT"),
+            8,
+        ),
+        summary_char_limit=_parse_int(env.get("TALOSENT_SUMMARY_CHAR_LIMIT"), 2000),
         api_host=env.get("TALOSENT_API_HOST", "127.0.0.1"),
-        api_port=int(env.get("TALOSENT_API_PORT", "8000")),
+        api_port=_parse_int(env.get("TALOSENT_API_PORT"), 8000),
         web_enabled=_parse_bool(env.get("TALOSENT_WEB_ENABLED")),
         tui_enabled=_parse_bool(env.get("TALOSENT_TUI_ENABLED")),
     )

@@ -42,6 +42,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"memory backend: {runtime.settings.memory_backend} ({runtime.memory_store.__class__.__name__})"
         )
         print(
+            "conversation memory: "
+            f"recent_turns={runtime.settings.recent_turns}, "
+            f"memory_fact_limit={runtime.settings.memory_fact_limit}, "
+            f"summary_turn_preview_limit={runtime.settings.summary_turn_preview_limit}, "
+            f"summary_char_limit={runtime.settings.summary_char_limit}"
+        )
+        print(
             f"storage backend: {runtime.settings.storage_backend} ({runtime.storage_backend.__class__.__name__})"
         )
         print(f"tools: {', '.join(runtime.tool_names) or '(none)'}")
