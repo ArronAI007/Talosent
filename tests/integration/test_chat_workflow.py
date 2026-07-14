@@ -9,8 +9,8 @@ ensure_src_on_path()
 from talosent.agent import AgentContext, ToolCall
 from talosent.agent.workflows import ChatWorkflow, WorkflowSpec
 from talosent.providers import ProviderResponse
-from talosent.storage import InMemoryStorageBackend
 from talosent.memory import PersistentMemoryStore
+from talosent.storage import InMemoryStorageBackend
 from talosent.tools import build_tool_registry
 
 
@@ -97,7 +97,7 @@ class ChatWorkflowIntegrationTests(unittest.TestCase):
         self.assertTrue(any(entry == "assistant:first-turn" for entry in snapshots[1]))
         self.assertTrue(any(message.role == "assistant" and message.content == "first-turn" for message in second.messages))
 
-    def test_chat_workflow_compresses_old_history_before_provider_call(self) -> None:
+    def test_chat_workflow_keeps_recent_turns_and_extracts_memory(self) -> None:
         snapshots: list[list[dict[str, object]]] = []
         store = PersistentMemoryStore(InMemoryStorageBackend(), namespace="sessions")
 
@@ -113,27 +113,40 @@ class ChatWorkflowIntegrationTests(unittest.TestCase):
             provider=InspectingProvider(),
             tools=build_tool_registry(),
             memory_store=store,
-            compression_max_messages=4,
-            compression_keep_messages=2,
-            compression_summary_items=4,
-            compression_summary_chars=600,
+            recent_turns=2,
+            memory_fact_limit=4,
+            summary_turn_preview_limit=4,
+            summary_char_limit=800,
         )
 
         context = AgentContext(conversation_id="compress-1")
-        context.add_message("user", "old question 1")
-        context.add_message("assistant", "old answer 1")
-        context.add_message("user", "old question 2")
-        context.add_message("assistant", "old answer 2")
-        context.add_message("user", "latest question")
+        context.add_message("user", "My name is Ada Lovelace.")
+        context.add_message("assistant", "Noted.")
+        context.add_message("user", "I live in Shanghai.")
+        context.add_message("assistant", "Okay.")
+        context.add_message("user", "I prefer concise answers.")
+        context.add_message("assistant", "Sure.")
+        context.add_message("user", "Keep using tables.")
+        context.add_message("assistant", "Understood.")
+        context.add_message("user", "What should you remember?")
 
         result = workflow.run(context)
 
         self.assertEqual(result.state["final_message"], "compressed")
-        self.assertTrue(result.state["compression"]["applied"])
-        self.assertTrue(any(message["metadata"].get("compressed_context") for message in snapshots[0] if message["role"] == "system"))
-        self.assertTrue(any(message["content"] == "latest question" for message in snapshots[0] if message["role"] == "user"))
+        self.assertEqual(result.state["session"]["retained_turns"], 2)
+        self.assertEqual(result.state["session"]["dropped_turns"], 3)
+
+        prompt_messages = snapshots[0]
+        system_messages = [message for message in prompt_messages if message["role"] == "system"]
+        self.assertTrue(any(message["metadata"].get("conversation_memory_facts") for message in system_messages))
+        self.assertTrue(any(message["metadata"].get("conversation_memory_summary") for message in system_messages))
+        self.assertFalse(any(message["content"] == "My name is Ada Lovelace." for message in prompt_messages if message["role"] == "user"))
+        self.assertTrue(any(message["content"] == "Keep using tables." for message in prompt_messages if message["role"] == "user"))
+        self.assertTrue(any(message["content"] == "What should you remember?" for message in prompt_messages if message["role"] == "user"))
 
         stored = store.get(workflow.session_key("compress-1"))
         self.assertIsNotNone(stored)
-        self.assertLess(len(stored.value["messages"]), 7)
-        self.assertTrue(any(message["metadata"].get("compressed_context") for message in stored.value["messages"] if message["role"] == "system"))
+        memory_state = stored.value["metadata"]["conversation_memory"]
+        self.assertGreaterEqual(len(memory_state["facts"]), 2)
+        self.assertTrue(any(fact["key"] == "user.name" for fact in memory_state["facts"]))
+        self.assertTrue(any(fact["key"] == "user.location" for fact in memory_state["facts"]))

@@ -69,6 +69,7 @@ def _interactive_loop(session: AgentContext, workflow: ChatWorkflow) -> None:
         if prompt in {"/exit", "/quit"}:
             return
         if prompt == "/reset":
+            workflow.clear_session(session.conversation_id)
             session.clear()
             print("session reset")
             continue
