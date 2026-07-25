@@ -5,7 +5,14 @@ from __future__ import annotations
 import os
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
+from pathlib import Path
 from typing import Any
+
+try:
+    from dotenv import load_dotenv
+    _has_dotenv = True
+except ImportError:
+    _has_dotenv = False
 
 
 def _parse_bool(value: str | bool | None) -> bool:
@@ -52,7 +59,14 @@ class Settings:
 
 
 def load_settings(environ: Mapping[str, str] | None = None) -> Settings:
-    env = os.environ if environ is None else environ
+    if environ is None:
+        if _has_dotenv:
+            env_file = Path(".env")
+            if env_file.exists():
+                load_dotenv(env_file)
+        env = os.environ
+    else:
+        env = environ
 
     return Settings(
         app_name=env.get("TALOSENT_APP_NAME", "Talosent"),

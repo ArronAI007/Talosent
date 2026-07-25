@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [{ name = "Talosent Contributors" }]
-dependencies = []
+dependencies = ["python-dotenv>=1.0.0"]
 
 [project.scripts]
 talosent = "talosent.cli.main:main"
