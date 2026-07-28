@@ -119,11 +119,18 @@ If a conversation feels too compressed, increase `TALOSENT_RECENT_TURNS` or `TAL
 
 ```text
 talosent/
-├─ pyproject.toml
+├─ pyproject.toml        # packaging + ruff/pytest/mypy/coverage config
 ├─ README.md
+├─ AGENTS.md             # development rules for humans and agents
+├─ CONTRIBUTING.md
+├─ SECURITY.md
+├─ CHANGELOG.md
 ├─ .env.example
+├─ .github/
+│  ├─ workflows/         # CI: lint + tests on Python 3.10-3.13
+│  └─ ISSUE_TEMPLATE/
 ├─ src/
-│  └─ talosent/
+│  └─ talosent/          # core library (dependency-free)
 │     ├─ agent/
 │     ├─ cli/
 │     ├─ config/
@@ -136,28 +143,49 @@ talosent/
 │     ├─ storage/
 │     ├─ tools/
 │     └─ web/
-├─ apps/
+├─ apps/                 # repo-local launchers
 │  ├─ tui/
 │  └─ web/
-├─ tests/
+├─ tests/                # unit/ + integration/ + e2e/
+├─ docs/                 # architecture.md, extending.md
+├─ examples/             # runnable reference integrations
+├─ scripts/              # test.sh, dev.sh
 ├─ evals/
-├─ docs/
-├─ examples/
-├─ scripts/
 └─ assets/
 ```
 
 ## Development
 
+Bootstrap the environment (editable install + dev dependencies):
+
+```bash
+./scripts/dev.sh
+```
+
 Run the test suite:
 
 ```bash
-python -m unittest discover -s tests -p 'test_*.py'
+./scripts/test.sh         # unit + integration
+./scripts/test.sh --all   # include e2e
+./scripts/test.sh --cov   # with coverage report
 ```
 
-The current built-in tool set is intentionally small. If you want to extend the runtime, the usual starting points are:
+Lint and format:
 
-- `src/talosent/providers/` for new providers
-- `src/talosent/tools/` for new tools
+```bash
+ruff check src tests apps examples
+ruff format --check src tests apps examples
+```
+
+Run an example:
+
+```bash
+python examples/custom_tool.py
+```
+
+Before contributing, read [AGENTS.md](AGENTS.md) for development rules and [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow. To extend the runtime, the usual starting points are:
+
+- `src/talosent/providers/` for new providers (see `docs/extending.md`)
+- `src/talosent/tools/` for new tools (see `docs/extending.md`)
 - `src/talosent/agent/workflows/` for new workflows
 - `src/talosent/web/` for browser UI changes

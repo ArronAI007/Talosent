@@ -3,6 +3,8 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 .venv/
 venv/
 dist/
@@ -10,3 +12,6 @@ build/
 *.egg-info/
 *.pyc
 .env
+*.log
+.playwright-cli/
+.codegraph/

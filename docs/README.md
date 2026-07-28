@@ -2,10 +2,9 @@
 
 Architecture notes, design decisions, and long-form references live here.
 
-Use this folder for:
+| Document | Contents |
+| --- | --- |
+| [architecture.md](architecture.md) | Module boundaries, request flow, agent loop, memory model |
+| [extending.md](extending.md) | How to add providers, tools, workflows, and launch surfaces |
 
-- boundary explanations between `agent`, `providers`, `tools`, `skills`, and `plugins`
-- provider onboarding notes
-- workflow design docs
-- deployment and runtime notes
-
+Configuration is documented in the root [README](../README.md#configuration).
