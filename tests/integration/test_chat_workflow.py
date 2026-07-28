@@ -8,8 +8,8 @@ ensure_src_on_path()
 
 from talosent.agent import AgentContext, ToolCall
 from talosent.agent.workflows import ChatWorkflow, WorkflowSpec
-from talosent.providers import ProviderResponse
 from talosent.memory import PersistentMemoryStore
+from talosent.providers import ProviderResponse
 from talosent.storage import InMemoryStorageBackend
 from talosent.tools import build_tool_registry
 
@@ -57,7 +57,11 @@ class ChatWorkflowIntegrationTests(unittest.TestCase):
         self.assertEqual(result.state["turns"], 2)
         self.assertIn("Tool said:", result.state["final_message"])
         self.assertTrue(any(message.role == "tool" and message.name == "current_time" for message in context.messages))
-        self.assertTrue(any(message.role == "assistant" and message.content.startswith("Tool said:") for message in context.messages))
+        self.assertTrue(
+            any(
+                message.role == "assistant" and message.content.startswith("Tool said:") for message in context.messages
+            )
+        )
 
     def test_chat_workflow_persists_and_restores_session(self) -> None:
         snapshots: list[list[str]] = []
@@ -69,7 +73,9 @@ class ChatWorkflowIntegrationTests(unittest.TestCase):
             def complete(self, messages, tools=()):
                 snapshot = [f"{message.role}:{message.content}" for message in messages]
                 snapshots.append(snapshot)
-                previous_assistant = next((message.content for message in messages if message.role == "assistant"), None)
+                previous_assistant = next(
+                    (message.content for message in messages if message.role == "assistant"), None
+                )
                 if previous_assistant is None:
                     return ProviderResponse(content="first-turn")
                 return ProviderResponse(content=f"restored:{previous_assistant}")
@@ -95,7 +101,9 @@ class ChatWorkflowIntegrationTests(unittest.TestCase):
         self.assertIn("restored:first-turn", second_result.state["final_message"])
         self.assertGreaterEqual(len(snapshots), 2)
         self.assertTrue(any(entry == "assistant:first-turn" for entry in snapshots[1]))
-        self.assertTrue(any(message.role == "assistant" and message.content == "first-turn" for message in second.messages))
+        self.assertTrue(
+            any(message.role == "assistant" and message.content == "first-turn" for message in second.messages)
+        )
 
     def test_chat_workflow_keeps_recent_turns_and_extracts_memory(self) -> None:
         snapshots: list[list[dict[str, object]]] = []
@@ -140,9 +148,23 @@ class ChatWorkflowIntegrationTests(unittest.TestCase):
         system_messages = [message for message in prompt_messages if message["role"] == "system"]
         self.assertTrue(any(message["metadata"].get("conversation_memory_facts") for message in system_messages))
         self.assertTrue(any(message["metadata"].get("conversation_memory_summary") for message in system_messages))
-        self.assertFalse(any(message["content"] == "My name is Ada Lovelace." for message in prompt_messages if message["role"] == "user"))
-        self.assertTrue(any(message["content"] == "Keep using tables." for message in prompt_messages if message["role"] == "user"))
-        self.assertTrue(any(message["content"] == "What should you remember?" for message in prompt_messages if message["role"] == "user"))
+        self.assertFalse(
+            any(
+                message["content"] == "My name is Ada Lovelace."
+                for message in prompt_messages
+                if message["role"] == "user"
+            )
+        )
+        self.assertTrue(
+            any(message["content"] == "Keep using tables." for message in prompt_messages if message["role"] == "user")
+        )
+        self.assertTrue(
+            any(
+                message["content"] == "What should you remember?"
+                for message in prompt_messages
+                if message["role"] == "user"
+            )
+        )
 
         stored = store.get(workflow.session_key("compress-1"))
         self.assertIsNotNone(stored)

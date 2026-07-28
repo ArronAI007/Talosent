@@ -37,9 +37,7 @@ class RuntimeBundleTests(unittest.TestCase):
         self.assertEqual(runtime.workflow.summary_char_limit, 1500)
 
         runtime.skills.register_many([SkillSpec(name="research", summary="Collect facts")])
-        runtime.plugins.register_many(
-            [PluginSpec(name="filesystem", entrypoint="talosent.plugins.filesystem")]
-        )
+        runtime.plugins.register_many([PluginSpec(name="filesystem", entrypoint="talosent.plugins.filesystem")])
 
         class EchoGateway:
             name = "echo"
@@ -48,9 +46,7 @@ class RuntimeBundleTests(unittest.TestCase):
                 return GatewayResponse(ok=True, payload=request.payload)
 
         runtime.gateways.register_many([EchoGateway()])
-        responses = runtime.gateways.dispatch_many(
-            [GatewayRequest(channel="echo", payload={"hello": "world"})]
-        )
+        responses = runtime.gateways.dispatch_many([GatewayRequest(channel="echo", payload={"hello": "world"})])
 
         summary = runtime.summary()
         self.assertEqual(responses[0].payload["hello"], "world")

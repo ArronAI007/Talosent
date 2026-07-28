@@ -29,9 +29,7 @@ class RegistryIntegrationTests(unittest.TestCase):
 
         tool_registry = ToolRegistry()
         tool_registry.register(ToolSpec(name="echo"), lambda arguments: arguments["text"])
-        tool_registry.register_many(
-            [(ToolSpec(name="reverse"), lambda arguments: arguments["text"][::-1])]
-        )
+        tool_registry.register_many([(ToolSpec(name="reverse"), lambda arguments: arguments["text"][::-1])])
         self.assertEqual(tool_registry.invoke("echo", {"text": "hello"}), "hello")
         self.assertEqual(tool_registry.get_spec("echo").name, "echo")
         self.assertEqual(tool_registry.describe("echo"), "echo")

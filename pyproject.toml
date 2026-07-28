@@ -12,6 +12,14 @@ license = { file = "LICENSE" }
 authors = [{ name = "Talosent Contributors" }]
 dependencies = ["python-dotenv>=1.0.0"]
 
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-cov>=5.0",
+  "ruff>=0.6",
+  "mypy>=1.10",
+]
+
 [project.scripts]
 talosent = "talosent.cli.main:main"
 talosent-tui = "talosent.cli.tui:main"
@@ -23,3 +31,58 @@ package-dir = { "" = "src" }
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["talosent*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-q"
+markers = [
+  "unit: isolated component tests",
+  "integration: multi-module wiring tests",
+  "e2e: subprocess-level surface tests",
+]
+
+[tool.coverage.run]
+source = ["src/talosent"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+src = ["src", "tests", "apps", "examples"]
+extend-exclude = ["src/talosent.egg-info"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = [
+  "B008",    # function calls in default arguments are used intentionally for registries
+]
+# Intentional fullwidth punctuation used in Chinese memory prompts and regexes
+allowed-confusables = ["！", "？", "，", "’"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["talosent", "apps", "tests"]
+
+[tool.ruff.lint.per-file-ignores]
+# page.py embeds minified CSS/JS and UI glyphs in template strings
+"src/talosent/web/page.py" = ["E501", "RUF001", "RUF002", "RUF003"]
+# bootstrap pattern inserts src/ on sys.path between imports
+"tests/**" = ["E402"]
+"apps/**" = ["E402"]
+"examples/**" = ["E402"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.10"
+mypy_path = "src"
+packages = ["talosent"]
+warn_unused_ignores = true
+warn_redundant_casts = true
+ignore_missing_imports = true
+explicit_package_bases = true

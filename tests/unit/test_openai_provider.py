@@ -39,7 +39,7 @@ class OpenAICompatibleProviderTests(unittest.TestCase):
                                     "type": "function",
                                     "function": {
                                         "name": "current_time",
-                                        "arguments": "{\"timezone\":\"UTC\"}",
+                                        "arguments": '{"timezone":"UTC"}',
                                     },
                                 }
                             ],

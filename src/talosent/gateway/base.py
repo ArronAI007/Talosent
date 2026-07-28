@@ -21,7 +21,7 @@ class GatewayRequest:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "GatewayRequest":
+    def from_dict(cls, data: Mapping[str, Any]) -> GatewayRequest:
         channel = _require_text(data.get("channel"), "GatewayRequest.channel")
         payload = data.get("payload") or {}
         metadata = data.get("metadata") or {}
@@ -48,7 +48,7 @@ class GatewayResponse:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "GatewayResponse":
+    def from_dict(cls, data: Mapping[str, Any]) -> GatewayResponse:
         payload = data.get("payload") or {}
         metadata = data.get("metadata") or {}
         if not isinstance(payload, Mapping):

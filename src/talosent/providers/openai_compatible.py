@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from uuid import uuid4
@@ -12,7 +13,6 @@ from uuid import uuid4
 from talosent.agent.model import AgentMessage, ToolCall
 from talosent.providers.runtime import ProviderResponse
 from talosent.tools.spec import ToolSpec
-
 
 RequestFn = Callable[[str, dict[str, Any], dict[str, str], float], dict[str, Any]]
 
@@ -70,9 +70,7 @@ class OpenAICompatibleProvider:
                 raw = response.read().decode("utf-8")
         except HTTPError as exc:
             error_body = exc.read().decode("utf-8", "replace")
-            raise RuntimeError(
-                f"OpenAI-compatible request failed with HTTP {exc.code}: {error_body}"
-            ) from exc
+            raise RuntimeError(f"OpenAI-compatible request failed with HTTP {exc.code}: {error_body}") from exc
         except URLError as exc:
             raise RuntimeError(f"OpenAI-compatible request failed: {exc.reason}") from exc
         return json.loads(raw)
@@ -136,4 +134,3 @@ class OpenAICompatibleProvider:
             name=function.get("name") or "",
             arguments=arguments,
         )
-

@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from collections.abc import Iterable, Mapping
 from typing import Any, Protocol
 
 from talosent.storage.backend import StorageBackend, StorageObject, build_storage_backend
@@ -29,10 +29,10 @@ class MemoryEntry:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "MemoryEntry":
+    def from_dict(cls, data: Mapping[str, Any]) -> MemoryEntry:
         key = _require_text(data.get("key"), "MemoryEntry.key")
         tags_raw = data.get("tags") or ()
-        if isinstance(tags_raw, Mapping) or isinstance(tags_raw, (str, bytes)):
+        if isinstance(tags_raw, (Mapping, str, bytes)):
             raise TypeError("MemoryEntry.tags must be an iterable of strings")
         metadata = data.get("metadata") or {}
         if not isinstance(metadata, Mapping):
@@ -60,7 +60,7 @@ class MemoryEntry:
         )
 
     @classmethod
-    def from_storage_object(cls, object_: StorageObject) -> "MemoryEntry":
+    def from_storage_object(cls, object_: StorageObject) -> MemoryEntry:
         payload = json.loads(object_.data.decode("utf-8"))
         if not isinstance(payload, Mapping):
             raise ValueError("Stored memory payload must be a JSON object")

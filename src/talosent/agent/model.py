@@ -21,7 +21,7 @@ class ToolCall:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "ToolCall":
+    def from_dict(cls, data: Mapping[str, Any]) -> ToolCall:
         call_id = _require_text(data.get("id"), "ToolCall.id")
         name = _require_text(data.get("name"), "ToolCall.name")
         arguments = data.get("arguments") or {}
@@ -50,13 +50,13 @@ class AgentMessage:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "AgentMessage":
+    def from_dict(cls, data: Mapping[str, Any]) -> AgentMessage:
         role = _require_text(data.get("role"), "AgentMessage.role")
         content = str(data.get("content") or "")
         name = _optional_text(data.get("name"))
         tool_call_id = _optional_text(data.get("tool_call_id"))
         tool_calls_raw = data.get("tool_calls") or ()
-        if isinstance(tool_calls_raw, Mapping) or isinstance(tool_calls_raw, (str, bytes)):
+        if isinstance(tool_calls_raw, (Mapping, str, bytes)):
             raise TypeError("AgentMessage.tool_calls must be an iterable of mappings")
         tool_calls = tuple(ToolCall.from_dict(tool_call) for tool_call in tool_calls_raw)
         metadata = data.get("metadata") or {}
@@ -88,7 +88,7 @@ class Artifact:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "Artifact":
+    def from_dict(cls, data: Mapping[str, Any]) -> Artifact:
         name = _require_text(data.get("name"), "Artifact.name")
         metadata = data.get("metadata") or {}
         if not isinstance(metadata, Mapping):
@@ -188,7 +188,7 @@ class AgentContext:
         self.state.clear()
         self.metadata.clear()
 
-    def copy(self) -> "AgentContext":
+    def copy(self) -> AgentContext:
         return AgentContext.from_dict(self.to_dict())
 
     def to_dict(self) -> dict[str, Any]:
@@ -201,16 +201,16 @@ class AgentContext:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "AgentContext":
+    def from_dict(cls, data: Mapping[str, Any]) -> AgentContext:
         conversation_id = str(data.get("conversation_id") or "default")
         messages_raw = data.get("messages") or ()
         artifacts_raw = data.get("artifacts") or ()
         state = data.get("state") or {}
         metadata = data.get("metadata") or {}
 
-        if isinstance(messages_raw, Mapping) or isinstance(messages_raw, (str, bytes)):
+        if isinstance(messages_raw, (Mapping, str, bytes)):
             raise TypeError("AgentContext.messages must be an iterable of mappings")
-        if isinstance(artifacts_raw, Mapping) or isinstance(artifacts_raw, (str, bytes)):
+        if isinstance(artifacts_raw, (Mapping, str, bytes)):
             raise TypeError("AgentContext.artifacts must be an iterable of mappings")
         if not isinstance(state, Mapping):
             raise TypeError("AgentContext.state must be a mapping")
@@ -241,14 +241,14 @@ class WorkflowResult:
         self.artifacts.append(artifact)
         return artifact
 
-    def merge(self, other: "WorkflowResult") -> "WorkflowResult":
+    def merge(self, other: WorkflowResult) -> WorkflowResult:
         self.messages.extend(other.messages)
         self.artifacts.extend(other.artifacts)
         self.state.update(other.state)
         self.metadata.update(other.metadata)
         return self
 
-    def copy(self) -> "WorkflowResult":
+    def copy(self) -> WorkflowResult:
         return WorkflowResult.from_dict(self.to_dict())
 
     def to_dict(self) -> dict[str, Any]:
@@ -260,15 +260,15 @@ class WorkflowResult:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "WorkflowResult":
+    def from_dict(cls, data: Mapping[str, Any]) -> WorkflowResult:
         messages_raw = data.get("messages") or ()
         artifacts_raw = data.get("artifacts") or ()
         state = data.get("state") or {}
         metadata = data.get("metadata") or {}
 
-        if isinstance(messages_raw, Mapping) or isinstance(messages_raw, (str, bytes)):
+        if isinstance(messages_raw, (Mapping, str, bytes)):
             raise TypeError("WorkflowResult.messages must be an iterable of mappings")
-        if isinstance(artifacts_raw, Mapping) or isinstance(artifacts_raw, (str, bytes)):
+        if isinstance(artifacts_raw, (Mapping, str, bytes)):
             raise TypeError("WorkflowResult.artifacts must be an iterable of mappings")
         if not isinstance(state, Mapping):
             raise TypeError("WorkflowResult.state must be a mapping")

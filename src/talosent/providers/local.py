@@ -12,7 +12,6 @@ from talosent.agent.model import AgentMessage, ToolCall
 from talosent.providers.runtime import ProviderResponse
 from talosent.tools.spec import ToolSpec
 
-
 _TIME_HINT = re.compile(r"\b(time|clock|current time|timezone)\b", re.IGNORECASE)
 
 

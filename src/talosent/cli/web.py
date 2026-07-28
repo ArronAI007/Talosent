@@ -51,7 +51,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     app = server.web_app
 
     print(
-        f"Talosent Web | provider={app.provider_name} | model={app.settings.default_model} | tools={', '.join(app.tool_names) or '(none)'}"
+        f"Talosent Web | provider={app.provider_name} | model={app.settings.default_model} "
+        f"| tools={', '.join(app.tool_names) or '(none)'}"
     )
     print(f"Listening on {url}")
 
@@ -73,4 +74,3 @@ def _display_host(host: str) -> str:
     if host in {"0.0.0.0", "::", ""}:
         return "127.0.0.1"
     return host
-

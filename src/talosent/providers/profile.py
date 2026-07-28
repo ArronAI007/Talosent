@@ -31,7 +31,7 @@ class ProviderProfile:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "ProviderProfile":
+    def from_dict(cls, data: Mapping[str, Any]) -> ProviderProfile:
         name = _require_text(data.get("name"), "ProviderProfile.name")
         metadata = data.get("metadata") or {}
         if not isinstance(metadata, Mapping):

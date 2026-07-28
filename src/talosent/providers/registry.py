@@ -8,7 +8,6 @@ from typing import Any
 
 from talosent.providers.profile import ProviderProfile
 
-
 ProviderFactory = Callable[[ProviderProfile], Any]
 
 

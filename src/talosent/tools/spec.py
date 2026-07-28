@@ -40,7 +40,7 @@ class ToolSpec:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "ToolSpec":
+    def from_dict(cls, data: Mapping[str, Any]) -> ToolSpec:
         name = _require_text(data.get("name"), "ToolSpec.name")
         input_schema = data.get("input_schema") or {}
         output_schema = data.get("output_schema") or {}

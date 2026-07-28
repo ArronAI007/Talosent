@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
-from collections.abc import Mapping, Sequence
 from typing import Any
 
 from talosent.agent.model import AgentMessage
-
 
 _FACT_PATTERNS: tuple[tuple[str, re.Pattern[str], float], ...] = (
     (
@@ -39,7 +38,8 @@ _FACT_PATTERNS: tuple[tuple[str, re.Pattern[str], float], ...] = (
     (
         "user.preference.response_style",
         re.compile(
-            r"(?:i prefer|please keep|keep it|please respond in|请保持|请用|我希望|我偏好)\s+(?P<value>[^。！？,;:\n]+)",
+            r"(?:i prefer|please keep|keep it|please respond in|请保持|请用|我希望|我偏好)"
+            r"\s+(?P<value>[^。！？,;:\n]+)",
             re.IGNORECASE,
         ),
         0.88,
@@ -55,7 +55,8 @@ _FACT_PATTERNS: tuple[tuple[str, re.Pattern[str], float], ...] = (
     (
         "project.goal",
         re.compile(
-            r"(?:we are building|we're building|the project is|our project is|we are working on|我们正在做|我们的项目是|我正在做)\s+(?P<value>[^。！？,;:\n]+)",
+            r"(?:we are building|we're building|the project is|our project is|we are working on"
+            r"|我们正在做|我们的项目是|我正在做)\s+(?P<value>[^。！？,;:\n]+)",
             re.IGNORECASE,
         ),
         0.74,
@@ -93,7 +94,7 @@ class MemoryFact:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "MemoryFact":
+    def from_dict(cls, data: Mapping[str, Any]) -> MemoryFact:
         key = _require_text(data.get("key"), "MemoryFact.key")
         metadata = data.get("metadata") or {}
         if not isinstance(metadata, Mapping):
@@ -141,9 +142,9 @@ class ConversationMemory:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "ConversationMemory":
+    def from_dict(cls, data: Mapping[str, Any]) -> ConversationMemory:
         facts_raw = data.get("facts") or ()
-        if isinstance(facts_raw, Mapping) or isinstance(facts_raw, (str, bytes)):
+        if isinstance(facts_raw, (Mapping, str, bytes)):
             raise TypeError("ConversationMemory.facts must be an iterable of mappings")
         metadata = data.get("metadata") or {}
         if not isinstance(metadata, Mapping):
@@ -159,7 +160,7 @@ class ConversationMemory:
             metadata=dict(metadata),
         )
 
-    def copy(self) -> "ConversationMemory":
+    def copy(self) -> ConversationMemory:
         return ConversationMemory.from_dict(self.to_dict())
 
     def is_empty(self) -> bool:
@@ -212,7 +213,7 @@ class ConversationMemory:
             )
         return tuple(messages)
 
-    def merge(self, other: "ConversationMemory") -> "ConversationMemory":
+    def merge(self, other: ConversationMemory) -> ConversationMemory:
         merged_facts = _merge_facts(self.facts, other.facts)
         summary = other.summary.strip() or self.summary.strip()
         if self.summary.strip() and other.summary.strip():

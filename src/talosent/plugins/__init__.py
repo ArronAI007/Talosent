@@ -6,4 +6,3 @@ from talosent.plugins.registry import PluginRegistration, PluginRegistry
 from talosent.plugins.spec import PluginSpec
 
 __all__ = ["PluginRegistration", "PluginRegistry", "PluginSpec"]
-

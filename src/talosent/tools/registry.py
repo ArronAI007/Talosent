@@ -8,7 +8,6 @@ from typing import Any
 
 from talosent.tools.spec import ToolSpec
 
-
 ToolHandler = Callable[[Mapping[str, Any]], Any]
 
 

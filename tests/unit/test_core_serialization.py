@@ -142,4 +142,3 @@ class CoreSerializationTests(unittest.TestCase):
         self.assertEqual(len(store), 2)
         store.clear()
         self.assertEqual(len(store.items()), 0)
-

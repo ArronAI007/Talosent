@@ -28,4 +28,3 @@ class ChatProvider(Protocol):
         tools: Sequence[ToolSpec] = (),
     ) -> ProviderResponse:
         """Return the next provider response for the given conversation."""
-

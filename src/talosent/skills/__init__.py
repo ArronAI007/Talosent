@@ -6,4 +6,3 @@ from talosent.skills.registry import SkillRegistration, SkillRegistry
 from talosent.skills.spec import SkillSpec
 
 __all__ = ["SkillRegistration", "SkillRegistry", "SkillSpec"]
-

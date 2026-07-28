@@ -2,19 +2,21 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from collections.abc import Iterable
 from typing import Any
 
-from talosent.agent.workflows import ChatWorkflow, DEFAULT_SYSTEM_PROMPT, WorkflowSpec
+from talosent.agent.workflows import DEFAULT_SYSTEM_PROMPT, ChatWorkflow, WorkflowSpec
 from talosent.config import Settings, load_settings
 from talosent.gateway import GatewayAdapter, GatewayRegistry
-from talosent.memory import MemoryStore, build_memory_store as _build_memory_store
+from talosent.memory import MemoryStore
+from talosent.memory import build_memory_store as _build_memory_store
 from talosent.plugins import PluginRegistry, PluginSpec
 from talosent.providers import ChatProvider, build_provider
 from talosent.skills import SkillRegistry, SkillSpec
-from talosent.storage import StorageBackend, build_storage_backend as _build_storage_backend
+from talosent.storage import StorageBackend
+from talosent.storage import build_storage_backend as _build_storage_backend
 from talosent.tools import ToolRegistry, build_tool_registry
 
 
@@ -125,9 +127,7 @@ def build_runtime(
 ) -> TalosentRuntime:
     runtime_settings = settings or load_settings()
     resolved_recent_turns = runtime_settings.recent_turns if recent_turns is None else recent_turns
-    resolved_memory_fact_limit = (
-        runtime_settings.memory_fact_limit if memory_fact_limit is None else memory_fact_limit
-    )
+    resolved_memory_fact_limit = runtime_settings.memory_fact_limit if memory_fact_limit is None else memory_fact_limit
     resolved_summary_turn_preview_limit = (
         runtime_settings.summary_turn_preview_limit
         if summary_turn_preview_limit is None
@@ -210,10 +210,10 @@ __all__ = [
     "build_chat_workflow",
     "build_gateway_registry",
     "build_memory_store",
+    "build_plugin_registry",
     "build_provider",
     "build_runtime",
-    "build_plugin_registry",
-    "build_storage_backend",
     "build_skill_registry",
+    "build_storage_backend",
     "build_tool_registry",
 ]

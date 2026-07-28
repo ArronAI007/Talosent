@@ -21,17 +21,17 @@ from talosent.memory.store import (
 )
 
 __all__ = [
-    "InMemoryMemoryStore",
     "ConversationMemory",
+    "InMemoryMemoryStore",
     "MemoryEntry",
     "MemoryFact",
     "MemoryStore",
+    "PersistentMemoryStore",
     "build_history_summary",
+    "build_memory_store",
     "extract_memory_facts",
     "is_memory_message",
     "is_summary_message",
     "is_system_prompt_message",
-    "PersistentMemoryStore",
     "split_turns",
-    "build_memory_store",
 ]

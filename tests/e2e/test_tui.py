@@ -17,9 +17,8 @@ class TuiE2ETests(unittest.TestCase):
     def test_prompt_mode_runs_tool_loop(self) -> None:
         buffer = StringIO()
 
-        with patch.dict(os.environ, {"TALOSENT_PROVIDER": "local"}, clear=True):
-            with redirect_stdout(buffer):
-                exit_code = main(["--prompt", "what time is it?"])
+        with patch.dict(os.environ, {"TALOSENT_PROVIDER": "local"}, clear=True), redirect_stdout(buffer):
+            exit_code = main(["--prompt", "what time is it?"])
 
         output = buffer.getvalue()
         self.assertEqual(exit_code, 0)

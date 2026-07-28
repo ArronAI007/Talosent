@@ -38,9 +38,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"environment: {runtime.settings.environment}")
         print(f"selected provider: {runtime.provider_name}")
         print(f"model: {runtime.settings.default_model}")
-        print(
-            f"memory backend: {runtime.settings.memory_backend} ({runtime.memory_store.__class__.__name__})"
-        )
+        print(f"memory backend: {runtime.settings.memory_backend} ({runtime.memory_store.__class__.__name__})")
         print(
             "conversation memory: "
             f"recent_turns={runtime.settings.recent_turns}, "
@@ -48,9 +46,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"summary_turn_preview_limit={runtime.settings.summary_turn_preview_limit}, "
             f"summary_char_limit={runtime.settings.summary_char_limit}"
         )
-        print(
-            f"storage backend: {runtime.settings.storage_backend} ({runtime.storage_backend.__class__.__name__})"
-        )
+        print(f"storage backend: {runtime.settings.storage_backend} ({runtime.storage_backend.__class__.__name__})")
         print(f"tools: {', '.join(runtime.tool_names) or '(none)'}")
         print(f"skills: {', '.join(runtime.skills.names()) or '(none)'}")
         print(f"plugins: {', '.join(runtime.plugins.names()) or '(none)'}")

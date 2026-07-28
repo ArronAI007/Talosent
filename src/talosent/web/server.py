@@ -104,7 +104,7 @@ class TalosentWebHandler(BaseHTTPRequestHandler):
     server_version = "TalosentWeb/0.1"
     protocol_version = "HTTP/1.1"
 
-    def do_GET(self) -> None:  # noqa: N802
+    def do_GET(self) -> None:
         route = urlparse(self.path).path
         app = self._app()
 
@@ -133,7 +133,7 @@ class TalosentWebHandler(BaseHTTPRequestHandler):
 
         self._send_json({"ok": False, "error": "Not found"}, status=HTTPStatus.NOT_FOUND)
 
-    def do_POST(self) -> None:  # noqa: N802
+    def do_POST(self) -> None:
         route = urlparse(self.path).path
 
         if route != "/api/chat":
@@ -163,7 +163,7 @@ class TalosentWebHandler(BaseHTTPRequestHandler):
 
         self._send_json(response)
 
-    def do_DELETE(self) -> None:  # noqa: N802
+    def do_DELETE(self) -> None:
         route = urlparse(self.path).path
 
         if route != "/api/session":
@@ -181,7 +181,7 @@ class TalosentWebHandler(BaseHTTPRequestHandler):
         self._app().clear_session(conversation_id)
         self._send_json({"ok": True, "conversation_id": conversation_id})
 
-    def log_message(self, format: str, *args: Any) -> None:  # noqa: A003
+    def log_message(self, format: str, *args: Any) -> None:
         LOGGER.debug("%s - %s", self.address_string(), format % args)
 
     def _app(self) -> TalosentWebApplication:

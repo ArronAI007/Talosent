@@ -103,7 +103,11 @@ class ChatWorkflow:
         final_state = self._refresh_context(context, prompt_state)
         session_info = {
             "conversation_id": context.conversation_id,
-            "loaded": restored or bool(context.metadata.get("_memory_hydrated")) or self._has_persistent_memory(context.conversation_id),
+            "loaded": (
+                restored
+                or bool(context.metadata.get("_memory_hydrated"))
+                or self._has_persistent_memory(context.conversation_id)
+            ),
             "saved": False,
             "memory_key": self.session_key(context.conversation_id) if self.memory_store else None,
             "messages": len(context.messages),
@@ -265,9 +269,7 @@ class ChatWorkflow:
 
     def _derive_memory_from_messages(self, messages: list[AgentMessage]) -> ConversationMemory:
         summary_lines = [
-            message.content.strip()
-            for message in messages
-            if is_summary_message(message) and message.content.strip()
+            message.content.strip() for message in messages if is_summary_message(message) and message.content.strip()
         ]
         facts = self._facts_from_memory_messages(messages)
         return ConversationMemory(
@@ -317,15 +319,15 @@ class ChatWorkflow:
         return [
             message
             for message in context.messages
-            if message.role == "system"
-            and not is_memory_message(message)
-            and not is_summary_message(message)
+            if message.role == "system" and not is_memory_message(message) and not is_summary_message(message)
         ]
 
     def _collect_chat_messages(self, context: AgentContext) -> list[AgentMessage]:
         return self._collect_chat_messages_from(context.messages)
 
-    def _collect_chat_messages_from(self, messages: list[AgentMessage] | tuple[AgentMessage, ...]) -> list[AgentMessage]:
+    def _collect_chat_messages_from(
+        self, messages: list[AgentMessage] | tuple[AgentMessage, ...]
+    ) -> list[AgentMessage]:
         return [message for message in messages if message.role != "system"]
 
     def _flatten_turns(self, turns: tuple[tuple[AgentMessage, ...], ...]) -> list[AgentMessage]:

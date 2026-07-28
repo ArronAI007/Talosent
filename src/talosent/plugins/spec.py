@@ -29,14 +29,14 @@ class PluginSpec:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "PluginSpec":
+    def from_dict(cls, data: Mapping[str, Any]) -> PluginSpec:
         name = _require_text(data.get("name"), "PluginSpec.name")
         skills = data.get("skills") or ()
         tools = data.get("tools") or ()
         metadata = data.get("metadata") or {}
-        if isinstance(skills, Mapping) or isinstance(skills, (str, bytes)):
+        if isinstance(skills, (Mapping, str, bytes)):
             raise TypeError("PluginSpec.skills must be an iterable of strings")
-        if isinstance(tools, Mapping) or isinstance(tools, (str, bytes)):
+        if isinstance(tools, (Mapping, str, bytes)):
             raise TypeError("PluginSpec.tools must be an iterable of strings")
         if not isinstance(metadata, Mapping):
             raise TypeError("PluginSpec.metadata must be a mapping")

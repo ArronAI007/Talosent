@@ -6,9 +6,9 @@ import base64
 import hashlib
 import json
 import tempfile
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -32,7 +32,7 @@ class StorageObject:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "StorageObject":
+    def from_dict(cls, data: Mapping[str, Any]) -> StorageObject:
         key = _require_text(data.get("key"), "StorageObject.key")
         raw_data = data.get("data")
         encoding = str(data.get("encoding") or "base64").lower()
@@ -59,7 +59,7 @@ class StorageObject:
             created_at=_parse_datetime(data.get("created_at")),
         )
 
-    def copy(self, **overrides: Any) -> "StorageObject":
+    def copy(self, **overrides: Any) -> StorageObject:
         payload = self.to_dict()
         payload.update(overrides)
         return StorageObject.from_dict(payload)
@@ -134,11 +134,7 @@ class FilesystemStorageBackend:
         path.unlink(missing_ok=True)
 
     def keys(self, prefix: str = "") -> tuple[str, ...]:
-        return tuple(
-            object_.key
-            for object_ in self.items()
-            if object_.key.startswith(prefix)
-        )
+        return tuple(object_.key for object_ in self.items() if object_.key.startswith(prefix))
 
     def items(self) -> tuple[StorageObject, ...]:
         objects = [StorageObject.from_dict(json.loads(path.read_text(encoding="utf-8"))) for path in self._iter_paths()]

@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Sequence
 from html import escape
 
-
 # =============================================================================
 # CSS DESIGN SYSTEM — lightweight B2B tech minimalism
 # =============================================================================
@@ -652,9 +651,9 @@ def _render_tool_cards(tool_names: Sequence[str]) -> str:
         return (
             '<div class="empty-state">'
             '<div class="empty-icon">🔧</div>'
-            '<p>No tools registered</p>'
+            "<p>No tools registered</p>"
             '<span class="empty-hint">Add tools to enable agent capabilities</span>'
-            '</div>'
+            "</div>"
         )
     cards = []
     for name in tool_names:
@@ -663,10 +662,10 @@ def _render_tool_cards(tool_names: Sequence[str]) -> str:
             f'<div class="tool-card-header">'
             f'<div class="tool-icon">🔧</div>'
             f'<div class="tool-name">{escape(name)}</div>'
-            f'</div>'
+            f"</div>"
             f'<div class="tool-desc">Registered tool available for agent execution.</div>'
             f'<div class="tool-tags"><span class="tool-tag">callable</span></div>'
-            f'</div>'
+            f"</div>"
         )
     return "\n".join(cards)
 
@@ -768,7 +767,7 @@ def render_home_page(
           <div class="chat-composer">
             <form id="chat-form">
               <div class="composer-toolbar">
-                <button type="button" class="toolbar-btn" id="insert-var-btn" title="Insert variable">{'{ }'}</button>
+                <button type="button" class="toolbar-btn" id="insert-var-btn" title="Insert variable">{"{ }"}</button>
                 <button type="button" class="toolbar-btn" id="save-prompt-btn" title="Save as template">⬇</button>
               </div>
               <div class="composer-input-wrap">
@@ -812,14 +811,14 @@ def render_home_page(
           </div>
           <div class="prompt-editor">
             <div class="editor-gutter" id="editor-gutter">1</div>
-            <textarea id="prompt-textarea" class="prompt-textarea" placeholder="Write your system prompt here...&#10;Use variables like {'{{user_input}}'} to make it dynamic."></textarea>
+            <textarea id="prompt-textarea" class="prompt-textarea" placeholder="Write your system prompt here...&#10;Use variables like {"{{user_input}}"} to make it dynamic."></textarea>
           </div>
           <div class="prompt-variables">
             <span class="var-label">Quick insert:</span>
-            <button type="button" class="var-chip" data-var="user_input">{'{{user_input}}'}</button>
-            <button type="button" class="var-chip" data-var="context">{'{{context}}'}</button>
-            <button type="button" class="var-chip" data-var="tools">{'{{tools}}'}</button>
-            <button type="button" class="var-chip" data-var="agent_name">{'{{agent_name}}'}</button>
+            <button type="button" class="var-chip" data-var="user_input">{"{{user_input}}"}</button>
+            <button type="button" class="var-chip" data-var="context">{"{{context}}"}</button>
+            <button type="button" class="var-chip" data-var="tools">{"{{tools}}"}</button>
+            <button type="button" class="var-chip" data-var="agent_name">{"{{agent_name}}"}</button>
           </div>
         </section>
 
