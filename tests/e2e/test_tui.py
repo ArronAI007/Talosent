@@ -22,7 +22,7 @@ class TuiE2ETests(unittest.TestCase):
 
         output = buffer.getvalue()
         self.assertEqual(exit_code, 0)
-        self.assertIn("Talosent TUI | provider=local", output)
-        self.assertIn("assistant> requesting tool: current_time", output)
-        self.assertIn("tool[current_time]>", output)
+        self.assertIn("Talosent v0.1.0", output)
+        self.assertIn("requesting: current_time", output)
+        self.assertIn("✓ current_time", output)
         self.assertIn("The current time in UTC is", output)

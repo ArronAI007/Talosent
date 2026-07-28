@@ -18,6 +18,7 @@ from talosent.runtime import build_chat_workflow
 
 class Colors:
     """ANSI color codes for terminal output."""
+
     RESET = "\033[0m"
     BOLD = "\033[1m"
     DIM = "\033[2m"
@@ -81,17 +82,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0
 
 
-def _print_welcome_screen(provider_name: str, model_name: str, tool_names: tuple[str, ...], use_color: bool = True) -> None:
+def _print_welcome_screen(
+    provider_name: str, model_name: str, tool_names: tuple[str, ...], use_color: bool = True
+) -> None:
     """Print a welcome screen similar to Claude Code."""
     if use_color:
         orange = Colors.ORANGE
         bold = Colors.BOLD
         dim = Colors.DIM
         reset = Colors.RESET
-        gray = Colors.GRAY
         cyan = Colors.CYAN
     else:
-        orange = bold = dim = reset = gray = cyan = ""
+        orange = bold = dim = reset = cyan = ""
 
     # Get username for personalized greeting
     username = os.getenv("USER", "there")
@@ -107,7 +109,6 @@ def _print_welcome_screen(provider_name: str, model_name: str, tool_names: tuple
 
     # Main content area - two columns
     left_width = 35
-    right_width = 33
 
     # Welcome message with ASCII art
     welcome_lines = [
