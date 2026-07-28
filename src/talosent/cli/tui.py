@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import sys
 import time
 from collections.abc import Sequence
@@ -36,6 +37,22 @@ class Colors:
     def supports_color() -> bool:
         """Check if terminal supports colors."""
         return hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
+
+
+# Talosent block-letter logo, 39 columns wide.
+_LOGO_LINES = (
+    "▀█▀  ▄▀▄  █    ▄▀▄  ▄▀▀  █▀▀  █▄ █  ▀█▀",
+    " █   █▀█  █    █ █   ▀▄  █▀   █ ▀█   █ ",
+    " ▀   ▀ ▀  ▀▀▀  ▀▄▀  ▀▀   ▀▀▀  ▀  ▀   ▀ ",
+)
+
+_ANSI_RE = re.compile(r"\033\[[0-9;]*m")
+
+
+def _pad_visible(text: str, width: int) -> str:
+    """Pad to ``width`` terminal columns, ignoring ANSI escape sequences."""
+    visible = len(_ANSI_RE.sub("", text))
+    return text + " " * max(0, width - visible)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -108,17 +125,13 @@ def _print_welcome_screen(
     print()
 
     # Main content area - two columns
-    left_width = 35
+    left_width = 40
 
-    # Welcome message with ASCII art
+    # Welcome message with the Talosent logo
     welcome_lines = [
         f"{bold}Welcome back {username}!{reset}",
         "",
-        "  ░░░░░░░░",
-        "  ░░▓▓░▓▓░",
-        "  ░░▓▓░▓▓░",
-        "  ░░░░░░░░",
-        "  ░░▓░░▓░░",
+        *_LOGO_LINES,
     ]
 
     # Right panel - tips
@@ -138,17 +151,15 @@ def _print_welcome_screen(
     for i in range(max_left_lines):
         left = welcome_lines[i] if i < len(welcome_lines) else ""
         right = tips_lines[i] if i < len(tips_lines) else ""
+        padded_left = _pad_visible(left, left_width)
 
-        if i == 0 and use_color:
+        if i == 0:
             # Title for right panel
-            print(f"{left:<{left_width}}  │  {tips_title}")
+            print(f"{padded_left}  │  {tips_title}")
         elif i == 1:
-            print(f"{left:<{left_width}}  │")
+            print(f"{padded_left}  │")
         else:
-            if use_color:
-                print(f"{left:<{left_width}}  │  {right}")
-            else:
-                print(f"{left:<{left_width}}  │  {right}")
+            print(f"{padded_left}  │  {right}")
 
     print()
 
